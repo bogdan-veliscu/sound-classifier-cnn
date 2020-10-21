@@ -4,3 +4,7 @@ torchvision==0.7.0
 librosa
 torchaudio
 torchsummary
+lmdb
+pandas
+tqdm
+tensorboardX

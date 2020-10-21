@@ -1,6 +1,6 @@
 {
-    "dataset_name": "USC",
-    "data_dir": "~/Downloads/ESC-50-master/spectograms/",
+    "dataset_name": "ESC",
+    "data_dir": "/Users/bogdan/Downloads/ESC-50-master/spectograms/",
     "dataaug": true,
     "pretrained": true,
     "scheduler": true,
@@ -10,6 +10,6 @@
     "epochs": 70,
     "lr": 1e-4,
     "weight_decay": 1e-3,
-    "num_folds": 10,
+    "num_folds": 5,
     "checkpoint_dir": "checkpoints/"
 }
