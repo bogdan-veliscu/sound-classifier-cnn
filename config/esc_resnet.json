@@ -1,0 +1,15 @@
+{
+    "dataset_name": "USC",
+    "data_dir": "~/Downloads/ESC-50-master/spectograms/",
+    "dataaug": true,
+    "pretrained": true,
+    "scheduler": true,
+    "model": "resnet",
+    "batch_size": 32,
+    "num_workers": 8,
+    "epochs": 70,
+    "lr": 1e-4,
+    "weight_decay": 1e-3,
+    "num_folds": 10,
+    "checkpoint_dir": "checkpoints/"
+}
