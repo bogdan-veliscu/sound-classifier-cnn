@@ -8,39 +8,41 @@ import numpy as np
 from PIL import Image
 import torchvision
 
-import models.densenet
-import models.resnet
-import models.inception
-import models.effnet
-import models.mobilenet
-import utils
-from .utils import load_checkpoint
+from .models import DenseNet, ResNet, Inception, MobileNet, EffNet
+from .utils import load_checkpoint, Params
+import os, inspect
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+print("# Arcface path: ", currentdir)
 
 
 class SoundClassifier:
-    def __init__(self, config_path="") -> None:
+    def __init__(
+        self, config_path=Path(currentdir) / "config" / "esc_mobilenet.json"
+    ) -> None:
 
-        self._params = utils.Params(config_path)
+        self._params = Params(config_path)
+        self._sampling_rate = 44100
         self._device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
         if self._params.model == "densenet":
-            self._model = models.densenet.DenseNet(
+            self._model = DenseNet(
                 self._params.dataset_name, self._params.pretrained
             ).to(self._device)
         elif self._params.model == "resnet":
-            self._model = models.resnet.ResNet(
-                self._params.dataset_name, self._params.pretrained
-            ).to(self._device)
+            self._model = ResNet(self._params.dataset_name, self._params.pretrained).to(
+                self._device
+            )
         elif self._params.model == "effnet":
-            self._model = models.effnet.EffNet(
-                self._params.dataset_name, self._params.pretrained
-            ).to(self._device)
+            self._model = EffNet(self._params.dataset_name, self._params.pretrained).to(
+                self._device
+            )
         elif self._params.model == "mobilenet":
-            self._model = models.mobilenet.MobileNet(
+            self._model = MobileNet(
                 self._params.dataset_name, self._params.pretrained
             ).to(self._device)
         elif self._params.model == "inception":
-            self._model = models.inception.Inception(
+            self._model = Inception(
                 self._params.dataset_name, self._params.pretrained
             ).to(self._device)
 
@@ -50,7 +52,15 @@ class SoundClassifier:
             lr=self._params.lr,
             weight_decay=self._params.weight_decay,
         )
-        load_checkpoint(Path(self._params.checkpoint_dir) / "model_best_1.pth.tar")
+        path = str(
+            Path(currentdir) / self._params.checkpoint_dir / "model_best_1.pth.tar"
+        )
+        print("# checkoint path:", path)
+        load_checkpoint(
+            path,
+            self._model,
+            self._optimizer,
+        )
 
     def extract_spectrogram(self, clip):
 
@@ -61,12 +71,12 @@ class SoundClassifier:
 
         specs = []
         for i in range(num_channels):
-            window_length = int(round(window_sizes[i] * self.sampling_rate / 1000))
-            hop_length = int(round(hop_sizes[i] * self.sampling_rate / 1000))
+            window_length = int(round(window_sizes[i] * self._sampling_rate / 1000))
+            hop_length = int(round(hop_sizes[i] * self._sampling_rate / 1000))
 
             clip = torch.Tensor(clip)
             spec = torchaudio.transforms.MelSpectrogram(
-                sample_rate=self.sampling_rate,
+                sample_rate=self._sampling_rate,
                 n_fft=4410,
                 win_length=window_length,
                 hop_length=hop_length,
@@ -80,10 +90,16 @@ class SoundClassifier:
             )
             specs.append(spec)
 
-    def infer(self, clip):
-        spec = extract_spectrogram(clip)
+        return specs
 
-        inputs = np.array([spec]).to(self._d)
+    def infer(self, clip):
+        specs = self.extract_spectrogram(clip)
+
+        values = np.array(specs)  # .reshape(-1, 128, 250)
+        print("@ values SHAPE:  ", values.shape)
+        values = torch.Tensor(values)
+
+        inputs = values.to(self._device)
         outputs = self._model(inputs)
 
         _, predicted = torch.max(outputs.data, 1)
