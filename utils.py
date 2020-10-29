@@ -3,6 +3,7 @@ import json
 import os
 import torch
 import torch.nn as nn
+import pandas as pd
 
 
 class Params:
@@ -10,6 +11,9 @@ class Params:
         with open(json_path) as f:
             params = json.load(f)
             self.__dict__.update(params)
+            self.__dict__["sound_types"] = get_classes(
+                os.path.join(os.path.dirname(json_path), "esc50.csv")
+            )
 
     def save(self, json_path):
         with open(json_path, "w") as f:
@@ -69,3 +73,14 @@ def initialize_weights(m):
     print(classname)
     if classname.find("Linear") != -1:
         nn.init.ones_(m.weight.data)
+
+
+def get_classes(meta_csv):
+    map = {}
+    df = pd.read_csv(meta_csv, skipinitialspace=True)
+    df2 = df.groupby(["category"]).min().sort_values(by=["target"])
+
+    for index, row in df2.iterrows():
+        map[row["target"]] = index
+
+    return map

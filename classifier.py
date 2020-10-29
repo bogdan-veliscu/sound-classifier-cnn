@@ -17,9 +17,7 @@ print("# Arcface path: ", currentdir)
 
 
 class SoundClassifier:
-    def __init__(
-        self, config_path=Path(currentdir) / "config" / "esc_mobilenet.json"
-    ) -> None:
+    def __init__(self, config_path=Path(currentdir) / "config" / "esc_mobilenet.json"):
 
         self._params = Params(config_path)
         self._sampling_rate = 44100
@@ -95,13 +93,13 @@ class SoundClassifier:
     def infer(self, clip):
         specs = self.extract_spectrogram(clip)
 
-        values = np.array(specs)  # .reshape(-1, 128, 250)
-        print("@ values SHAPE:  ", values.shape)
+        values = np.array(specs).reshape((1, 3, 128, 250))
         values = torch.Tensor(values)
 
         inputs = values.to(self._device)
         outputs = self._model(inputs)
 
         _, predicted = torch.max(outputs.data, 1)
-
-        return predicted
+        predicted = int(predicted.data[0])
+        tag = self._params.sound_types[predicted]
+        return predicted, tag
