@@ -1,4 +1,3 @@
-from sound_task.esc_cnn.preprocessing.preprocessingESC import extract_spectrogram
 import torch
 import torch.nn as nn
 
