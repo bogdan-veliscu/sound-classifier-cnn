@@ -1,0 +1,10 @@
+efficientnet_pytorch
+torch==1.6.0
+torchvision==0.7.0
+librosa
+torchaudio
+torchsummary
+lmdb
+pandas
+tqdm
+tensorboardX

@@ -1,0 +1,3 @@
+*.pyc
+runs/
+checkpoints/last1.pth.tar

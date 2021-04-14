@@ -1,0 +1,9 @@
+efficientnet_pytorch
+torch
+torchvision
+librosa
+torchaudio
+torchsummary
+lmdb
+pandas
+tensorboardX
