@@ -21,7 +21,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/tomasic/esc-cnn",
     package_data={
-        "": ["*.txt", "*.rst", "*.pth", "*.npy", "*.log"],
+        "": ["*.txt", "*.rst", "*.pth", "*.npy", "*.log", "config/*.*", "checkpoints/*.*"],
     },
     package_dir={"": "."},
     packages=setuptools.find_packages(),
